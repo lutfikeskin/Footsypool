@@ -1,0 +1,41 @@
+[gd_resource type="Theme" format=3 uid="uid://dcgt6p5ro22q2"]
+
+[ext_resource type="StyleBox" uid="uid://kcq31sl3gxax" path="res://_Starter/Themes/button_hover.tres" id="1"]
+[ext_resource type="StyleBox" uid="uid://c3pbq5ojka84b" path="res://_Starter/Themes/button_default.tres" id="2"]
+[ext_resource type="Texture2D" uid="uid://d4hcalv6stfy7" path="res://_Starter/Sprites/empty_pixel.png" id="3"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xdaro"]
+border_width_top = 10
+border_width_bottom = 10
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_32i1e"]
+bg_color = Color(1, 1, 1, 1)
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nm7fo"]
+bg_color = Color(0, 0, 0, 1)
+border_width_top = 10
+border_width_bottom = 10
+border_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5x1i1"]
+bg_color = Color(1, 1, 1, 1)
+
+[resource]
+Button/colors/font_color = Color(0, 0, 0, 1)
+Button/colors/font_hover_color = Color(1, 1, 1, 1)
+Button/colors/icon_normal_color = Color(0, 0, 0, 1)
+Button/constants/icon_max_width = 0
+Button/fonts/font = null
+Button/styles/hover = ExtResource("1")
+Button/styles/normal = ExtResource("2")
+Button/styles/pressed = ExtResource("1")
+HSlider/icons/grabber = ExtResource("3")
+HSlider/icons/grabber_disabled = ExtResource("3")
+HSlider/icons/grabber_highlight = ExtResource("3")
+HSlider/styles/grabber_area = SubResource("StyleBoxFlat_xdaro")
+HSlider/styles/grabber_area_highlight = SubResource("StyleBoxFlat_32i1e")
+HSlider/styles/slider = SubResource("StyleBoxFlat_nm7fo")
+Label/fonts/font = null
+VScrollBar/styles/grabber = SubResource("StyleBoxFlat_5x1i1")

@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://b8agfuem7q6wk"]
+
+[ext_resource type="Script" uid="uid://bl0qic6cviysy" path="res://_Starter/Scripts/blinders.gd" id="1"]
+
+[node name="Blinders" type="CanvasLayer" unique_id=843717358 node_paths=PackedStringArray("left", "right")]
+script = ExtResource("1")
+left = NodePath("Left")
+right = NodePath("Right")
+
+[node name="Left" type="ColorRect" parent="." unique_id=913807918]
+anchors_preset = 9
+anchor_bottom = 1.0
+grow_vertical = 2
+scale = Vector2(1, 10)
+color = Color(0, 0, 0, 1)
+
+[node name="Right" type="ColorRect" parent="." unique_id=449298611]
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 0
+grow_vertical = 2
+scale = Vector2(-1, 10)
+color = Color(0, 0, 0, 1)

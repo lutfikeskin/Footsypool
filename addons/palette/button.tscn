@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://bdeadiokbylgh"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8j5bn"]
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_i1snh"]
+bg_color = Color(1, 1, 1, 1)
+
+[node name="White" type="Button" unique_id=752770840]
+custom_minimum_size = Vector2(50, 50)
+theme_override_styles/normal = SubResource("StyleBoxFlat_8j5bn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_i1snh")

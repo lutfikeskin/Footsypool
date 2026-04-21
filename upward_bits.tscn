@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://chqj6ufs2ndpi"]
+
+[ext_resource type="PackedScene" uid="uid://cab3m3fmik16o" path="res://Scenes/bits.tscn" id="1"]
+
+[node name="Bits" unique_id=1512521884 instance=ExtResource("1")]
+amount = 12
+emission_shape = 3
+emission_rect_extents = Vector2(50, 10)
+direction = Vector2(0, -1)
+spread = 46.34
+gravity = Vector2(0, 200)
+initial_velocity_min = 89.11
+initial_velocity_max = 207.92

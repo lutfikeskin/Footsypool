@@ -1,0 +1,44 @@
+GDRE Tools v2.4.0
+Windows 10.0.19045, NVIDIA GeForce RTX 3060 Ti, vulkan
+WARNING: Could not find embedded pck in EXE, found pck file, loading from: C:/Users/Lutfi/Desktop/Godot/Footpool/Footpool.pck
+   at: GDRESettings::sort_and_validate_pck_files (modules\gdsdecomp\utility\gdre_settings.cpp:594)
+Opening file: C:/Users/Lutfi/Desktop/Godot/Footpool/Footpool.pck
+Opening file: C:/Users/Lutfi/Desktop/Godot/Footpool/Footpool.pck
+ERROR: Can't load PCK, already loaded from C:/Users/Lutfi/Desktop/Godot/Footpool/Footpool.pck
+   at: GDRESettings::_add_pack (modules\gdsdecomp\utility\gdre_settings.cpp:665)
+ERROR: res://Sprites/torso.png.import: no destination files found in import data
+   at: ImportInfoModern::_load (modules\gdsdecomp\utility\import_info.cpp:617)
+Loaded 136 imported files
+Detected Engine Version: 4.6.1
+Detected Bytecode Revision: 4.5.0-stable (ebc36a7)
+Verified 287 files, no errors detected!
+Extracted 287 files, no errors detected!
+Recreating plugin configs...
+Saved project config.
+
+
+********************************EXPORT REPORT********************************
+
+Totals:                                 
+Decompiled scripts:                     45
+Failed scripts:                         0
+Imported resources for export session:  136
+Successfully converted:                 136
+Lossy:                                  24
+Rewrote metadata:                       69
+Non-importable conversions:             0
+Not converted:                          0
+Failed conversions:                     0
+-------------
+
+
+
+------------------------------------------------------------------------------------
+
+Use Godot editor version 4.6.1 to edit the project.
+Note: the project may be using a custom version of Godot. Detection for this has not been implemented yet.
+If you find that you have many non-import errors upon opening the project 
+(i.e. scripts or shaders have many errors), use the original game's binary as the export template.
+
+*******************************************************************************
+

@@ -1,0 +1,13 @@
+res://default_bus_layout.tres
+res://Scripts/dude.gd
+res://Scripts/ball.gd
+res://Scripts/main.gd
+res://Scripts/kicker.gd
+res://Scenes/dude.tscn
+res://_Starter/Shaders/blob.gdshader
+res://_Starter/Themes/theme.tres
+res://_Starter/Shaders/blur.gdshader
+res://_Starter/Shaders/bush.gdshader
+res://_Starter/Shaders/pulse.gdshader
+res://_Starter/Shaders/displace.gdshader
+res://_Starter/Scenes/face.tscn

@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://p0a0dayjvrf"]
+
+[node name="Sound" type="AudioStreamPlayer2D" unique_id=1789612242]
+autoplay = true
+max_distance = 10000.0
+attenuation = 0.17677644
+bus = &"Sounds"

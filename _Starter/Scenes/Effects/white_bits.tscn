@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://b8ktnq4xfb7at"]
+
+[ext_resource type="Script" uid="uid://djvkoe3th0d8e" path="res://_Starter/Scripts/fake_particles.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://bdhdb2dkm6po3" path="res://_Starter/Scenes/Effects/fake_particle.tscn" id="2"]
+
+[sub_resource type="Curve" id="Curve_ylsbi"]
+_data = [Vector2(0, 0), 0.0, 4.568529, 0, 0, Vector2(0.65400004, 1), -0.01466513, -0.01466513, 0, 0, Vector2(1, 0.32690358), 0.020751413, 0.0, 0, 0]
+point_count = 3
+
+[node name="Bits" type="Node2D" unique_id=422818921]
+modulate = Color(1, 1, 1, 0.48235294)
+script = ExtResource("1")
+particle = ExtResource("2")
+amount = 12
+amount_variation = 0.2
+lifetime = 0.06
+lifetime_variation = 0.3
+velocity = 0.6
+velocity_variation = 0.5
+width = 15
+width_variation = 0.3
+width_curve = SubResource("Curve_ylsbi")
+color_dark_variation = 0.2
+color_light_variation = 0.2

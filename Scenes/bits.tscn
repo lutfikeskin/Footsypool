@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://cab3m3fmik16o"]
+
+[ext_resource type="Texture2D" uid="uid://cijvrkcbnjaal" path="res://_Starter/Sprites/circle.png" id="1"]
+
+[sub_resource type="Curve" id="Curve_ptfg5"]
+_data = [Vector2(0, 0.3567251), 0.0, 0.0, 0, 0, Vector2(0.56613755, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[node name="Bits" type="CPUParticles2D" unique_id=1512521884]
+emitting = false
+texture = ExtResource("1")
+lifetime = 0.3
+one_shot = true
+explosiveness = 1.0
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 163.37
+initial_velocity_max = 336.63
+scale_amount_min = 0.01
+scale_amount_max = 0.03
+scale_amount_curve = SubResource("Curve_ptfg5")

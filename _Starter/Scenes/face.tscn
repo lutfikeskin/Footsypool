@@ -1,0 +1,50 @@
+[gd_scene format=3 uid="uid://dxxgw2udie8rg"]
+
+[ext_resource type="Script" uid="uid://b6wi31avwrvcy" path="res://_Starter/Scripts/face.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://cijvrkcbnjaal" path="res://_Starter/Sprites/circle.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://b86g0fd25ahdx" path="res://_Starter/Sprites/mouth.png" id="3"]
+
+[node name="Face" type="Node2D" unique_id=1240513132 node_paths=PackedStringArray("left_eye", "right_eye", "wrapper", "blushes")]
+script = ExtResource("1")
+left_eye = NodePath("Wrapper/Eye Left")
+right_eye = NodePath("Wrapper/Eye Right")
+wrapper = NodePath("Wrapper")
+blushes = NodePath("Blushes")
+
+[node name="Wrapper" type="Node2D" parent="." unique_id=149350154]
+modulate = Color(0, 0, 0, 1)
+
+[node name="Eye Left" type="Sprite2D" parent="Wrapper" unique_id=3138396]
+position = Vector2(-8.499999, 1.2920007)
+rotation = 3.1415925
+scale = Vector2(0.014, 0.014)
+texture = ExtResource("2")
+offset = Vector2(0, 128)
+
+[node name="Eye Right" type="Sprite2D" parent="Wrapper" unique_id=379892137]
+position = Vector2(9.500001, 1.2920007)
+rotation = 3.1415925
+scale = Vector2(0.014, 0.014)
+texture = ExtResource("2")
+offset = Vector2(0, 128)
+
+[node name="Mouth" type="Sprite2D" parent="Wrapper" unique_id=1401642646]
+position = Vector2(0, 3)
+scale = Vector2(0.066067554, 0.06606756)
+texture = ExtResource("3")
+
+[node name="Blushes" type="Node2D" parent="." unique_id=319134752]
+
+[node name="Blush Left" type="Sprite2D" parent="Blushes" unique_id=1921362429]
+self_modulate = Color(1, 0.49411765, 0.41960785, 1)
+position = Vector2(-15.749341, 5.1347084)
+rotation = 3.1415925
+scale = Vector2(0.019020557, 0.012130703)
+texture = ExtResource("2")
+
+[node name="Blush Right" type="Sprite2D" parent="Blushes" unique_id=69306370]
+self_modulate = Color(1, 0.49411765, 0.41960785, 1)
+position = Vector2(15.891183, 4.945591)
+rotation = 3.1415925
+scale = Vector2(0.019587915, 0.011374233)
+texture = ExtResource("2")

@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://ctjq4xva13ep1"]
+
+[ext_resource type="Texture2D" uid="uid://cijvrkcbnjaal" path="res://_Starter/Sprites/circle.png" id="1"]
+
+[sub_resource type="Curve" id="Curve_ptfg5"]
+_data = [Vector2(0, 0.3567251), 0.0, 0.0, 0, 0, Vector2(0.56613755, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[node name="Ground Bits" type="CPUParticles2D" unique_id=646592374]
+self_modulate = Color(1, 0.96862745, 0.972549, 0.4745098)
+emitting = false
+amount = 4
+texture = ExtResource("1")
+lifetime = 0.3
+one_shot = true
+explosiveness = 1.0
+lifetime_randomness = 0.2
+emission_shape = 3
+emission_rect_extents = Vector2(50, 10)
+direction = Vector2(0, -1)
+spread = 57.92
+gravity = Vector2(0, 500)
+initial_velocity_min = 99.01
+initial_velocity_max = 227.72
+scale_amount_min = 0.01
+scale_amount_max = 0.02
+scale_amount_curve = SubResource("Curve_ptfg5")
