@@ -52,9 +52,6 @@
 [ext_resource type="Script" uid="uid://dtybvy8y50rsc" path="res://_Starter/Scripts/button_hover.gd" id="50"]
 [ext_resource type="Texture2D" uid="uid://cnwp67b5haw7c" path="res://_Starter/Sprites/fullscreen.png" id="51"]
 [ext_resource type="Script" uid="uid://dkwkobpcq5j4v" path="res://_Starter/Scripts/appearer.gd" id="52"]
-[ext_resource type="Script" uid="uid://ycuhajgaxxh7" path="res://_Starter/Scripts/leaderboards.gd" id="53"]
-[ext_resource type="PackedScene" uid="uid://cb5t88f4kwnhd" path="res://_Starter/Scenes/score_row.tscn" id="54"]
-[ext_resource type="Texture2D" uid="uid://dt8twcm06re22" path="res://Sprites/arrow_right.png" id="55"]
 [ext_resource type="PackedScene" uid="uid://b8agfuem7q6wk" path="res://_Starter/Scenes/blinders.tscn" id="56"]
 [ext_resource type="Shader" uid="uid://dw5u0j1r1we5x" path="res://_Starter/Shaders/blob.gdshader" id="57"]
 [ext_resource type="Texture2D" uid="uid://bdqjnjnqqxgsv" path="res://Sprites/logo.png" id="58"]
@@ -80,8 +77,6 @@ point_count = 2
 
 [sub_resource type="Gradient" id="Gradient_bv80c"]
 colors = PackedColorArray(1, 1, 1, 0.49411765, 1, 1, 1, 0)
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_kltya"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7k868"]
 shader = ExtResource("57")
@@ -296,7 +291,7 @@ self_modulate = Color(0.45, 1, 0.55, 0.9)
 scale = Vector2(0.72, 0.72)
 texture = ExtResource("36")
 
-[node name="Main" type="Node2D" parent="." unique_id=1427521217 node_paths=PackedStringArray("kicker", "ball", "cam", "multi_label", "score_label", "goal_score_label", "round_label", "name_label", "buttons", "menu", "appearers", "floating_help", "burst", "hide_on_start", "start_stuff", "leaderboards", "rename_help", "music", "upgrade_wrap", "upgrade_buttons", "upgrade_title")]
+[node name="Main" type="Node2D" parent="." unique_id=1427521217 node_paths=PackedStringArray("kicker", "ball", "cam", "multi_label", "score_label", "goal_score_label", "round_label", "buttons", "menu", "appearers", "floating_help", "burst", "hide_on_start", "start_stuff", "music", "upgrade_wrap", "upgrade_buttons", "upgrade_title")]
 position = Vector2(966, 935)
 script = ExtResource("39")
 kicker = NodePath("../Kicker")
@@ -307,16 +302,13 @@ multi_label = NodePath("../CanvasLayer/Control/Multi")
 score_label = NodePath("../CanvasLayer/Control/Score")
 goal_score_label = NodePath("../Goal Score")
 round_label = NodePath("../CanvasLayer/Control/Round")
-name_label = NodePath("../CanvasLayer/Control/Text Changer")
 buttons = [NodePath("../CanvasLayer/Control/Settings/Button"), NodePath("../CanvasLayer/Control/Settings/Button2")]
 menu = NodePath("../CanvasLayer/Control/Settings")
 appearers = [NodePath("../CanvasLayer/Control/Place Help"), NodePath("../CanvasLayer/Control/Place Help Sub"), NodePath("../CanvasLayer/Control/Game Over"), NodePath("../CanvasLayer/Control/Again Wrap"), NodePath("../CanvasLayer/Control/Quit Wrap")]
 floating_help = NodePath("../Floating Help")
 burst = NodePath("../Burst")
-hide_on_start = [NodePath("../CanvasLayer/Control/Score"), NodePath("../CanvasLayer/Control/Multi"), NodePath("../CanvasLayer/Control/Text Changer"), NodePath("../CanvasLayer/Control/Round"), NodePath("../Goal Score Title"), NodePath("../Goal Score")]
-start_stuff = [NodePath("../Logo"), NodePath("../CanvasLayer/Control/Author"), NodePath("../CanvasLayer/Control/Jam"), NodePath("../CanvasLayer/Control/Play Wrap"), NodePath("../CanvasLayer/Control/Scores Title"), NodePath("../CanvasLayer/Control/LB Wrap"), NodePath("../CanvasLayer/Control/LB Next"), NodePath("../CanvasLayer/Control/LB Prev")]
-leaderboards = NodePath("../CanvasLayer/Control/LB Wrap/Leaderboards")
-rename_help = NodePath("../CanvasLayer/Control/Text Changer/Node2D")
+hide_on_start = [NodePath("../CanvasLayer/Control/Score"), NodePath("../CanvasLayer/Control/Multi"), NodePath("../CanvasLayer/Control/Round"), NodePath("../Goal Score Title"), NodePath("../Goal Score")]
+start_stuff = [NodePath("../Logo"), NodePath("../CanvasLayer/Control/Play Wrap")]
 music = NodePath("../Music")
 upgrade_wrap = NodePath("../CanvasLayer/Control/Upgrade Wrap")
 upgrade_buttons = [NodePath("../CanvasLayer/Control/Upgrade Wrap/VBoxContainer/Upgrade 1"), NodePath("../CanvasLayer/Control/Upgrade Wrap/VBoxContainer/Upgrade 2"), NodePath("../CanvasLayer/Control/Upgrade Wrap/VBoxContainer/Upgrade 3")]
@@ -422,57 +414,6 @@ theme_override_fonts/normal_font = ExtResource("44")
 theme_override_font_sizes/normal_font_size = 60
 text = "x1 "
 horizontal_alignment = 2
-
-[node name="Text Changer" type="LineEdit" parent="CanvasLayer/Control" unique_id=995979617]
-layout_mode = 0
-offset_left = 14.0
-offset_right = 206.0
-offset_bottom = 80.0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/caret_color = Color(0.9490196, 0.9490196, 0.9490196, 1)
-theme_override_constants/outline_size = 24
-theme_override_constants/caret_width = 5
-theme_override_fonts/font = ExtResource("44")
-theme_override_font_sizes/font_size = 60
-theme_override_styles/focus = SubResource("StyleBoxEmpty_kltya")
-text = "Anon"
-max_length = 16
-expand_to_text_length = true
-deselect_on_focus_loss_enabled = false
-flat = true
-caret_blink = true
-
-[node name="Node2D" type="Node2D" parent="CanvasLayer/Control/Text Changer" unique_id=812052650]
-position = Vector2(161, 44)
-script = ExtResource("45")
-moves = true
-move_direction = Vector2(-7, 0)
-single_direction = true
-
-[node name="Change Help" type="RichTextLabel" parent="CanvasLayer/Control/Text Changer/Node2D" unique_id=781390824]
-clip_contents = false
-anchors_preset = 6
-anchor_left = 1.0
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = 2.0
-offset_top = -22.0
-offset_right = 405.0
-offset_bottom = 103.0
-grow_horizontal = 0
-grow_vertical = 2
-theme_override_constants/outline_size = 16
-theme_override_fonts/normal_font = ExtResource("44")
-theme_override_font_sizes/normal_font_size = 30
-text = "      Click to change"
-fit_content = true
-autowrap_mode = 0
-
-[node name="Sprite2D" type="Sprite2D" parent="CanvasLayer/Control/Text Changer/Node2D" unique_id=457985739]
-position = Vector2(22, -3)
-scale = Vector2(0.13888904, 0.13888904)
-texture = ExtResource("46")
 
 [node name="Round" type="RichTextLabel" parent="CanvasLayer/Control" unique_id=918857629]
 layout_mode = 0
@@ -734,115 +675,6 @@ vertical_alignment = 1
 script = ExtResource("52")
 center_pivot = true
 
-[node name="Author" type="RichTextLabel" parent="CanvasLayer/Control" unique_id=1877527149]
-layout_mode = 1
-anchors_preset = 14
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -7.0
-offset_top = -202.0
-offset_right = -6.0
-offset_bottom = -47.0
-grow_horizontal = 2
-grow_vertical = 2
-pivot_offset = Vector2(963, 86)
-pivot_offset_ratio = Vector2(0.5, 0.5)
-theme = ExtResource("48")
-theme_override_constants/outline_size = 24
-theme_override_fonts/normal_font = ExtResource("44")
-theme_override_font_sizes/normal_font_size = 60
-bbcode_enabled = true
-text = "by [wave][color=#FFA69E]Antti Haavikko"
-horizontal_alignment = 1
-vertical_alignment = 1
-script = ExtResource("52")
-appear_after = 0.3
-center_pivot = true
-
-[node name="Jam" type="RichTextLabel" parent="CanvasLayer/Control" unique_id=1950914510]
-layout_mode = 1
-anchors_preset = 14
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -6.0
-offset_top = -410.0
-offset_right = -5.0
-offset_bottom = -255.0
-grow_horizontal = 2
-grow_vertical = 2
-pivot_offset = Vector2(963, 86)
-pivot_offset_ratio = Vector2(0.5, 0.5)
-theme = ExtResource("48")
-theme_override_constants/outline_size = 24
-theme_override_fonts/normal_font = ExtResource("44")
-theme_override_font_sizes/normal_font_size = 44
-bbcode_enabled = true
-text = "[wave]made for [font_size=55][color=#FFA69E]LD59"
-horizontal_alignment = 1
-vertical_alignment = 1
-script = ExtResource("52")
-appear_after = 0.5
-center_pivot = true
-
-[node name="Scores Title" type="RichTextLabel" parent="CanvasLayer/Control" unique_id=619148881]
-layout_mode = 1
-anchors_preset = 14
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -6.0
-offset_top = -120.0
-offset_right = -5.0
-offset_bottom = 35.0
-grow_horizontal = 2
-grow_vertical = 2
-pivot_offset = Vector2(963, 86)
-pivot_offset_ratio = Vector2(0.5, 0.5)
-theme = ExtResource("48")
-theme_override_constants/outline_size = 24
-theme_override_fonts/normal_font = ExtResource("44")
-theme_override_font_sizes/normal_font_size = 44
-bbcode_enabled = true
-text = "LEADERBOARDS"
-horizontal_alignment = 1
-vertical_alignment = 1
-script = ExtResource("52")
-appear_after = 0.5
-center_pivot = true
-
-[node name="LB Wrap" type="Control" parent="CanvasLayer/Control" unique_id=1752511855]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -467.0
-offset_top = -15.0
-offset_right = 480.0
-offset_bottom = 414.0
-grow_horizontal = 2
-grow_vertical = 2
-pivot_offset_ratio = Vector2(0.5, 0.9)
-script = ExtResource("52")
-appear_after = 0.7
-duration = 0.2
-
-[node name="Leaderboards" type="VBoxContainer" parent="CanvasLayer/Control/LB Wrap" unique_id=513684521]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme = ExtResource("48")
-script = ExtResource("53")
-game_name = "footsypool"
-per_page = 10
-row_prefab = ExtResource("54")
-
 [node name="Play Wrap" type="Control" parent="CanvasLayer/Control" unique_id=1401011537]
 layout_mode = 1
 anchors_preset = 7
@@ -932,80 +764,6 @@ theme_override_fonts/font = ExtResource("44")
 theme_override_font_sizes/font_size = 40
 text = "Quit"
 script = ExtResource("50")
-metadata/_custom_type_script = "uid://dtybvy8y50rsc"
-
-[node name="LB Next" type="Control" parent="CanvasLayer/Control" unique_id=1950914835]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = 143.0
-offset_top = -67.0
-offset_right = 189.0
-offset_bottom = -20.0
-grow_horizontal = 2
-grow_vertical = 2
-pivot_offset_ratio = Vector2(0.5, 0.5)
-script = ExtResource("52")
-appear_after = 0.7
-
-[node name="Button" type="Button" parent="CanvasLayer/Control/LB Next" unique_id=1455986517]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 2.0
-offset_right = 2.0
-grow_horizontal = 2
-grow_vertical = 2
-theme = ExtResource("48")
-theme_override_constants/icon_max_width = 20
-theme_override_fonts/font = ExtResource("44")
-theme_override_font_sizes/font_size = 40
-icon = ExtResource("55")
-icon_alignment = 1
-script = ExtResource("50")
-resize_border = true
-border_width = 6
-metadata/_custom_type_script = "uid://dtybvy8y50rsc"
-
-[node name="LB Prev" type="Control" parent="CanvasLayer/Control" unique_id=540855733]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -204.0
-offset_top = -68.0
-offset_right = -158.0
-offset_bottom = -21.0
-grow_horizontal = 2
-grow_vertical = 2
-pivot_offset_ratio = Vector2(0.5, 0.5)
-script = ExtResource("52")
-appear_after = 0.7
-
-[node name="Button" type="Button" parent="CanvasLayer/Control/LB Prev" unique_id=1913876918]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 2.0
-offset_right = 2.0
-grow_horizontal = 2
-grow_vertical = 2
-theme = ExtResource("48")
-theme_override_constants/icon_max_width = 20
-theme_override_fonts/font = ExtResource("44")
-theme_override_font_sizes/font_size = 40
-icon = ExtResource("46")
-icon_alignment = 1
-script = ExtResource("50")
-resize_border = true
-border_width = 6
 metadata/_custom_type_script = "uid://dtybvy8y50rsc"
 
 [node name="Blinders" parent="." unique_id=843717358 instance=ExtResource("56")]
@@ -1138,5 +896,3 @@ width_curve = SubResource("Curve_1w6v2")
 [connection signal="pressed" from="CanvasLayer/Control/Again Wrap/Again" to="Main" method="pan_off"]
 [connection signal="pressed" from="CanvasLayer/Control/Again Wrap/Again" to="CanvasLayer/Control/Settings" method="restart"]
 [connection signal="pressed" from="CanvasLayer/Control/Quit Wrap/Quit" to="Blinders" method="quit"]
-[connection signal="pressed" from="CanvasLayer/Control/LB Next/Button" to="CanvasLayer/Control/LB Wrap/Leaderboards" method="next_page"]
-[connection signal="pressed" from="CanvasLayer/Control/LB Prev/Button" to="CanvasLayer/Control/LB Wrap/Leaderboards" method="prev_page"]

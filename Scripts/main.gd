@@ -8,7 +8,6 @@ class_name Main extends Node2D
 @export var score_label: RichTextLabel
 @export var goal_score_label: RichTextLabel
 @export var round_label: RichTextLabel
-@export var name_label: LineEdit
 @export var buttons: Array[Button]
 @export var menu: OptionsMenu
 @export var appearers: Array[Appearer]
@@ -16,8 +15,6 @@ class_name Main extends Node2D
 @export var burst: Burst
 @export var hide_on_start: Array[Node]
 @export var start_stuff: Array[Appearer]
-@export var leaderboards: Leaderboards
-@export var rename_help: Node2D
 @export var music: AudioStreamPlayer
 @export var upgrade_wrap: Control
 @export var upgrade_buttons: Array[Button]
@@ -76,9 +73,6 @@ func _ready() -> void :
     cam.zoom = Vector2.ONE * 0.8
     get_tree().create_tween().tween_property(cam, "global_position", p, 1).set_trans(Tween.TRANS_SPRING)
     get_tree().create_tween().tween_property(cam, "zoom", Vector2.ONE, 1).set_trans(Tween.TRANS_SPRING)
-    name_label.focus_entered.connect(input_focused)
-    name_label.focus_exited.connect(change_name)
-    name_label.text_changed.connect(text_changed)
     for idx in upgrade_buttons.size():
         upgrade_buttons[idx].pressed.connect(_on_upgrade_button_pressed.bind(idx))
     upgrade_wrap.hide()
@@ -91,26 +85,7 @@ func pan_off():
     get_tree().create_tween().tween_property(cam, "global_position", cam.global_position + Vector2.UP * 300, 0.3).set_trans(Tween.TRANS_SPRING)
     get_tree().create_tween().tween_property(cam, "zoom", Vector2.ONE * 0.8, 0.3).set_trans(Tween.TRANS_SPRING)
 
-func text_changed(content: String):
-    var regex = RegEx.new()
-    regex.compile("[^A-Za-z0-9]")
-    name_label.text = regex.sub(content, "", true)
-    name_label.caret_column = len(name_label.text)
-
-func input_focused():
-
-    await get_tree().create_timer(0.1).timeout
-    name_label.select_all()
-    name_label.caret_column = len(name_label.text)
-    rename_help.hide()
-
-func change_name():
-    if name_label.text.is_empty(): name_label.text = "Anon"
-    leaderboards.change_name(name_label.text)
-
 func play():
-    name_label.text = leaderboards.player.name
-    if name_label.text != "Anon": rename_help.hide()
     cam.shake(5, 0.15)
     kicker.line.show()
     kicker.placing = true
@@ -270,7 +245,6 @@ func failed():
         kicker.enable_kick()
         return
     if has_failed:
-        leaderboards.submit(total_score, level)
         await get_tree().create_timer(0.9).timeout
         SoundEffects.singleton.add(4, global_position, 3)
 

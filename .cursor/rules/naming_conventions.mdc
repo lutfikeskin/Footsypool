@@ -1,0 +1,12 @@
+---
+alwaysApply: true
+---
+
+- Files: Use snake_case for all filenames (e.g., player_character.gd, main_menu.tscn)
+- Classes: Use PascalCase for custom class names with class_name (e.g., PlayerCharacter)
+- Variables: Use snake_case for all variables including member variables (e.g., health_points)
+- Constants: Use ALL_CAPS_SNAKE_CASE for constants (e.g., MAX_HEALTH)
+- Functions: Use snake_case for all functions including lifecycle functions (e.g., move_player())
+- Enums: Use PascalCase for enum type names and ALL_CAPS_SNAKE_CASE for enum values
+- Nodes: Use PascalCase for node names in the scene tree (e.g., PlayerCharacter, MainCamera)
+- Signals: Use snake_case in past tense to name events (e.g., health_depleted, enemy_defeated)

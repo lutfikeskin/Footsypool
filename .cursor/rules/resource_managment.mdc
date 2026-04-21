@@ -1,0 +1,8 @@
+---
+alwaysApply: true
+---
+
+- Implement proper resource cleanup in \_exit_tree()
+- Use preload() for essential resources, load() for optional ones
+- Consider PackedByteArray storage impact on backwards compatibility
+- Implement resource unloading for unused assets

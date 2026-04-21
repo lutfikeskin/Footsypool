@@ -1,0 +1,10 @@
+---
+alwaysApply: true
+---
+
+- Use strict typing in GDScript for better error detection and IDE support
+- Implement \_ready() and other lifecycle functions with explicit super() calls
+- Use @onready annotations instead of direct node references in \_ready()
+- Prefer composition over inheritance where possible
+- Use signals for loose coupling between nodes
+- Follow Godot's node naming conventions (PascalCase for nodes, snake_case for methods)

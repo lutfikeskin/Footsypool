@@ -1,0 +1,9 @@
+---
+alwaysApply: true
+---
+
+- Use type hints for all variables and function parameters
+- Document complex functions with docstrings
+- Keep methods focused and under 30 lines when possible
+- Use meaningful variable and function names
+- Group related properties and methods together

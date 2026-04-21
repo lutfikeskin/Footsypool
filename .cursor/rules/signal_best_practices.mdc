@@ -1,0 +1,13 @@
+---
+alwaysApply: true
+---
+
+- Use clear, contextual signal names that describe their purpose (e.g., player_health_changed)
+- Utilize typed signals to improve safety and IDE assistance (e.g., signal item_collected(item_name: String))
+- Connect signals in code for dynamic nodes, and in the editor for static relationships
+- Avoid overusing signals - reserve them for important events, not frequent updates
+- Pass only necessary data through signal arguments, avoiding entire node references when possible
+- Use an autoload "EventBus" singleton for global signals that need to reach distant nodes
+- Minimize signal bubbling through multiple parent nodes
+- Always disconnect signals when nodes are freed to prevent memory leaks
+- Document signals with comments explaining their purpose and parameters

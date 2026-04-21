@@ -1,0 +1,8 @@
+---
+alwaysApply: true
+---
+
+- Use node groups judiciously for managing collections, and prefer direct node references for frequent, specific access to individual nodes.
+- Implement object pooling for frequently spawned objects
+- Use physics layers to optimize collision detection
+- Prefer packed arrays (PackedVector2Array, etc.) over regular arrays

@@ -1,0 +1,9 @@
+---
+alwaysApply: true
+---
+
+- TileMap node is deprecated - use multiple TileMapLayer nodes instead
+- Convert existing TileMaps using the TileMap bottom panel toolbox option "Extract TileMap layers"
+- Access TileMap layers through TileMapLayer nodes
+- Update navigation code to use TileMapLayer.get_navigation_map()
+- Store layer-specific properties on individual TileMapLayer nodes
