@@ -18,14 +18,10 @@ var catcher: Dude
 var selecting_weapon_shooter: = false
 var selecting_weapon_target: = false
 var weapon_shooter: Dude
-var selecting_swap_first: = false
-var selecting_swap_second: = false
-var swap_placing_first: = false
-var swap_placing_second: = false
-var first_swap_dude: Dude
-var second_swap_dude: Dude
-var first_swap_target: Vector2 = Vector2.ZERO
-var swap_preview_warn_timer: = 0.0
+var selecting_relocate_player: = false
+var placing_relocate_target: = false
+var relocate_player: Dude
+var relocate_preview_warn_timer: = 0.0
 
 func get_dir() -> Vector2:
     return (line.get_global_mouse_position() - ball.global_position).normalized()
@@ -37,14 +33,14 @@ func _process(_delta: float) -> void :
     main.floating_help.hide()
 
     if catcher: catcher.catch_ring.hide()
-    if selecting_swap_first or selecting_swap_second or swap_placing_first or swap_placing_second:
+    if selecting_relocate_player or placing_relocate_target:
         for d in main.dudes:
             if d.player:
                 d.catch_ring.show()
                 d.catch_ring.self_modulate = Color(0.45, 1, 0.55, 1)
 
     var mp: = line.get_global_mouse_position()
-    cursor_ring.visible = (placing and is_inside(mp)) or selecting_weapon_target or selecting_swap_first or selecting_swap_second or swap_placing_first or swap_placing_second
+    cursor_ring.visible = (placing and is_inside(mp)) or selecting_weapon_target or selecting_relocate_player or placing_relocate_target
     cursor_cross.visible = not cursor_ring.visible and placing
 
     cursor.global_position = mp
@@ -70,25 +66,15 @@ func _process(_delta: float) -> void :
             enemy.catch_ring.show()
             main.show_floating_help("Shoot target", enemy.global_position)
 
-    if selecting_swap_first:
-        var first := get_player_at_pos(mp)
-        if first:
-            first.catch_ring.show()
-            main.show_floating_help("Pick first teammate", first.global_position)
+    if selecting_relocate_player:
+        var selected := get_player_at_pos(mp)
+        if selected:
+            selected.catch_ring.show()
+            main.show_floating_help("Pick teammate", selected.global_position)
 
-    if selecting_swap_second:
-        var second := get_player_at_pos(mp)
-        if second and second != first_swap_dude:
-            second.catch_ring.show()
-            main.show_floating_help("Pick second teammate", second.global_position)
-
-    if swap_placing_first and first_swap_dude:
-        first_swap_dude.catch_ring.show()
-        main.show_floating_help("Set first position", mp)
-
-    if swap_placing_second and second_swap_dude:
-        second_swap_dude.catch_ring.show()
-        main.show_floating_help("Set second position", mp)
+    if placing_relocate_target and relocate_player:
+        relocate_player.catch_ring.show()
+        main.show_floating_help("Set new position", mp)
 
 func add_bounce(from: Vector2, dir: Vector2):
     var result = get_hit(from, dir, bounces > 0)
@@ -145,13 +131,9 @@ func cancel_all_modes():
     kicking = false
     selecting_weapon_shooter = false
     selecting_weapon_target = false
-    selecting_swap_first = false
-    selecting_swap_second = false
-    swap_placing_first = false
-    swap_placing_second = false
-    first_swap_dude = null
-    second_swap_dude = null
-    first_swap_target = Vector2.ZERO
+    selecting_relocate_player = false
+    placing_relocate_target = false
+    relocate_player = null
     line.hide()
     main.floating_help.hide()
     for d in main.dudes:
@@ -172,15 +154,15 @@ func start_weapon_phase():
     line.hide()
     main.show_help("Choose a (shooter)", "Then (click) an enemy to fire")
 
-func start_swap_phase():
-    if not main.swap_positions_active:
+func start_relocate_phase():
+    if not main.single_relocate_active:
         return
-    if main.swap_positions_charges <= 0:
+    if main.single_relocate_charges <= 0:
         return
     cancel_all_modes()
-    selecting_swap_first = true
+    selecting_relocate_player = true
     line.hide()
-    main.show_help("Relocate ready", "Pick (first) teammate")
+    main.show_help("Relocate ready", "Pick a (teammate)")
 
 func is_inside(pos: Vector2) -> bool:
     return Geometry2D.is_point_in_polygon(pos, field.polygon)
@@ -199,28 +181,30 @@ func _input(event: InputEvent) -> void :
                 main.menu.toggle()
             return
 
-        if swap_placing_first:
+        if placing_relocate_target:
             if not is_inside(mp):
                 return
-            first_swap_target = mp
-            swap_placing_first = false
-            swap_placing_second = true
-            main.show_help("Relocate ready", "Place (second) teammate")
-            return
-        if swap_placing_second:
-            if not is_inside(mp):
-                return
-            if mp.distance_to(first_swap_target) < 80:
+            if get_closest_player_distance(mp, relocate_player) < 75:
                 main.bad("TOO CLOSE!", mp)
-                swap_preview_warn_timer = 0.22
+                relocate_preview_warn_timer = 0.22
                 return
-            if not main.consume_swap_charge():
+            if not main.consume_single_relocate_charge():
                 cancel_all_modes()
-                main.finish_swap_reposition()
+                main.finish_single_relocate()
                 return
-            await relocate_selected(first_swap_target, mp)
+            await relocate_selected(mp)
             cancel_all_modes()
-            main.finish_swap_reposition()
+            main.finish_single_relocate()
+            main.resume_after_relocate()
+            return
+        if selecting_relocate_player:
+            var p := get_player_at_pos(mp)
+            if not p:
+                return
+            relocate_player = p
+            selecting_relocate_player = false
+            placing_relocate_target = true
+            main.show_help("Relocate ready", "Click a new (field) position")
             return
         if placing:
             main.has_moved = true
@@ -245,24 +229,6 @@ func _input(event: InputEvent) -> void :
             selecting_weapon_shooter = false
             selecting_weapon_target = true
             main.hide_help()
-            return
-        if selecting_swap_first:
-            var p1 := get_player_at_pos(mp)
-            if not p1:
-                return
-            first_swap_dude = p1
-            selecting_swap_first = false
-            selecting_swap_second = true
-            main.show_help("Relocate ready", "Pick (second) teammate")
-            return
-        if selecting_swap_second:
-            var p2 := get_player_at_pos(mp)
-            if not p2 or p2 == first_swap_dude:
-                return
-            second_swap_dude = p2
-            selecting_swap_second = false
-            swap_placing_first = true
-            main.show_help("Relocate ready", "Place (first) teammate")
             return
         if selecting_weapon_target:
             var enemy := get_enemy_at_pos(mp)
@@ -341,33 +307,31 @@ func get_player_at_pos(pos: Vector2) -> Dude:
             return d
     return null
 
-func relocate_selected(first_target: Vector2, second_target: Vector2):
-    if not first_swap_dude or not second_swap_dude:
+func relocate_selected(target: Vector2):
+    if not relocate_player:
         return
-    first_swap_dude.move_to(first_target)
-    second_swap_dude.move_to(second_target)
-    SoundEffects.singleton.add(3, first_target)
-    SoundEffects.singleton.add(3, second_target)
-    Effects.singleton.pop("[wave]REPOSITION![/wave]", (first_target + second_target) * 0.5)
-    await get_tree().create_timer(0.35).timeout
+    relocate_player.move_to(target)
+    SoundEffects.singleton.add(3, target)
+    Effects.singleton.pop("[wave]RELOCATE![/wave]", target)
+    await relocate_player.moved
 
 func update_swap_preview(mp: Vector2):
     if not swap_preview_ring:
         return
-    var active: = swap_placing_first or swap_placing_second
+    var active: = placing_relocate_target
     if not active:
         reset_swap_preview()
         return
     swap_preview_ring.show()
     swap_preview_ring.global_position = mp
-    if swap_preview_warn_timer > 0:
-        swap_preview_warn_timer = maxf(0.0, swap_preview_warn_timer - get_process_delta_time())
+    if relocate_preview_warn_timer > 0:
+        relocate_preview_warn_timer = maxf(0.0, relocate_preview_warn_timer - get_process_delta_time())
         swap_preview_ring.self_modulate = Color(1, 0.28, 0.28, 0.95)
         return
     if not is_inside(mp):
         swap_preview_ring.self_modulate = Color(1, 0.35, 0.35, 0.85)
         return
-    if swap_placing_second and mp.distance_to(first_swap_target) < 80:
+    if get_closest_player_distance(mp, relocate_player) < 75:
         swap_preview_ring.self_modulate = Color(1, 0.55, 0.3, 0.9)
         return
     swap_preview_ring.self_modulate = Color(0.45, 1, 0.55, 0.9)
@@ -375,9 +339,19 @@ func update_swap_preview(mp: Vector2):
 func reset_swap_preview():
     if not swap_preview_ring:
         return
-    swap_preview_warn_timer = 0.0
+    relocate_preview_warn_timer = 0.0
     swap_preview_ring.hide()
     swap_preview_ring.self_modulate = Color(0.45, 1, 0.55, 0.9)
+
+func get_closest_player_distance(pos: Vector2, ignore: Dude = null) -> float:
+    var closest: = INF
+    for d in main.dudes:
+        if not d.player:
+            continue
+        if d == ignore:
+            continue
+        closest = minf(closest, pos.distance_to(d.global_position))
+    return closest
 
 func get_hit(from: Vector2, dir: Vector2, can_catch: bool) -> Dictionary:
     var space_state = get_world_2d().direct_space_state
