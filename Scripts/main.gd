@@ -66,6 +66,15 @@ var turns_without_progress: = 0
 var kills_last_round: = 0
 var kills_this_round: = 0
 
+enum BossType { NONE, MOBILE, FULL_FOG, SNIPER }
+
+@export var boss_unlock_level: int = 10
+@export var boss_duration_rounds: int = 5
+var current_boss: BossType = BossType.NONE
+var boss_rounds_left: int = 0
+var _boss_fog_active: = false
+var _boss_fog_saved_visible: Dictionary = {}
+
 func _ready() -> void :
 
     var p: = cam.global_position
@@ -112,7 +121,7 @@ func show_floating_help(text: String, pos: Vector2):
     floating_help.text = Utils.as_wavy(text)
     floating_help.show()
 
-func add_dude(player: bool, pos: Vector2, elite: bool = false):
+func add_dude(player: bool, pos: Vector2, elite: bool = false, as_mobile_boss: bool = false, as_sniper: bool = false):
     if player: player_count += 1
     else: enemy_count += 1
     var dude: = dude_prefab.instantiate() as Dude
@@ -125,9 +134,14 @@ func add_dude(player: bool, pos: Vector2, elite: bool = false):
     dude.position = Vector2(offset, 300) if player else Vector2(offset, -1000)
     dude.move_to(pos)
     dude.player = player
-    if not player: dude.make_enemy()
-    if elite and not player:
-        dude.make_elite()
+    if not player:
+        dude.make_enemy()
+        if elite:
+            dude.make_elite()
+        if as_sniper:
+            dude.make_sniper()
+        if as_mobile_boss:
+            dude.mark_mobile_boss()
     if player:
         dude.set_weapon_enabled(weapon_upgrade_active)
     dude.set_number(player_count if player else enemy_count)
@@ -146,6 +160,128 @@ func show_help(first: String, second: String):
 func mark(text: String):
     return Utils.colorize(text, "#FFA69E")
 
+func advance_boss_state_after_goal() -> void :
+    if level < boss_unlock_level:
+        return
+    if current_boss == BossType.NONE:
+        current_boss = BossType.MOBILE
+        boss_rounds_left = boss_duration_rounds
+        return
+    boss_rounds_left -= 1
+    if boss_rounds_left <= 0:
+        current_boss = _next_boss_type(current_boss)
+        boss_rounds_left = boss_duration_rounds
+
+func _next_boss_type(from: BossType) -> BossType:
+    match from:
+        BossType.MOBILE:
+            return BossType.FULL_FOG
+        BossType.FULL_FOG:
+            return BossType.SNIPER
+        BossType.SNIPER:
+            return BossType.MOBILE
+        _:
+            return BossType.MOBILE
+
+func is_boss_round(which: BossType) -> bool:
+    return level >= boss_unlock_level and current_boss == which and boss_rounds_left > 0
+
+func maybe_apply_sniper_round() -> void :
+    if not is_boss_round(BossType.SNIPER):
+        return
+    var holder: Dude = kicker.current
+    var players: Array[Dude] = dudes.filter(func(d: Dude): return d.player)
+    if players.size() <= 1:
+        return
+    var candidates: Array[Dude] = players
+    if holder and holder.player:
+        candidates = players.filter(func(d: Dude): return d != holder)
+    if candidates.is_empty():
+        return
+    var victim: Dude = candidates.pick_random() as Dude
+    if not victim:
+        return
+    bad("SNIPED!", victim.global_position + Vector2.UP * 50)
+    SoundEffects.singleton.add(12, victim.global_position, 1.0)
+    remove_dude(victim)
+
+func get_mobile_boss() -> Dude:
+    for d in dudes:
+        if d.is_mobile_boss:
+            return d
+    return null
+
+func reposition_mobile_boss_if_needed() -> void :
+    if not is_boss_round(BossType.MOBILE):
+        return
+    var m: Dude = get_mobile_boss()
+    if not m:
+        return
+    var dest: Vector2 = random_point_in_field(80.0)
+    if dest == Vector2.ZERO:
+        return
+    m.move_to(dest)
+
+func random_point_in_field(min_other_dist: float) -> Vector2:
+    var field_poly: CollisionPolygon2D = kicker.field
+    if not field_poly or field_poly.polygon.is_empty():
+        return Vector2.ZERO
+    var poly: PackedVector2Array = field_poly.polygon
+    var xf: Transform2D = field_poly.global_transform
+    var aabb: Rect2 = Rect2(poly[0], Vector2.ZERO)
+    for p in poly:
+        aabb = aabb.expand(p)
+    for _i in 48:
+        var local_pt: Vector2 = Vector2(
+            randf_range(aabb.position.x, aabb.position.x + aabb.size.x),
+            randf_range(aabb.position.y, aabb.position.y + aabb.size.y))
+        if not Geometry2D.is_point_in_polygon(local_pt, poly):
+            continue
+        var world_pt: Vector2 = xf * local_pt
+        if _min_dist_to_any_dude(world_pt, null) < min_other_dist:
+            continue
+        return world_pt
+    return Vector2.ZERO
+
+func _min_dist_to_any_dude(world_pt: Vector2, ignore: Dude) -> float:
+    var best: float = 1e9
+    for d in dudes:
+        if d == ignore:
+            continue
+        best = minf(best, world_pt.distance_to(d.global_position))
+    return best
+
+func is_boss_full_fog_round() -> bool:
+    return is_boss_round(BossType.FULL_FOG)
+
+func begin_boss_fog_for_aim(holder: Dude) -> void :
+    if not is_boss_full_fog_round() or _boss_fog_active:
+        return
+    _boss_fog_active = true
+    _boss_fog_saved_visible.clear()
+    var root: Node = get_parent()
+    if not root:
+        return
+    for node_name in ["Area", "Field", "Edges", "Bg", "ColorRect", "ColorRect2", "ColorRect3", "ColorRect4", "Field Area", "Goal Score Title", "Goal Score", "Burst", "Logo", "Floating Help"]:
+        var n: Node = root.get_node_or_null(NodePath(node_name))
+        if n and n is CanvasItem:
+            var ci: CanvasItem = n as CanvasItem
+            _boss_fog_saved_visible[ci] = ci.visible
+            ci.visible = false
+    for d in dudes:
+        if d != holder:
+            _boss_fog_saved_visible[d] = d.visible
+            d.visible = false
+
+func end_boss_fog_for_aim() -> void :
+    if not _boss_fog_active:
+        return
+    _boss_fog_active = false
+    for item in _boss_fog_saved_visible.keys():
+        if is_instance_valid(item) and item is CanvasItem:
+            (item as CanvasItem).visible = _boss_fog_saved_visible[item] as bool
+    _boss_fog_saved_visible.clear()
+
 func next_level():
     kills_last_round = kills_this_round
     kills_this_round = 0
@@ -159,21 +295,30 @@ func next_level():
     shown_score = 0
     score = 0
     level += 1
+    advance_boss_state_after_goal()
+    maybe_apply_sniper_round()
     kicker.line.hide()
     check_upgrade_trigger()
     await wait_upgrade_done()
     await get_tree().create_timer(0.5).timeout
 
+    for d in dudes:
+        d.is_mobile_boss = false
+        d.is_sniper_enemy = false
     var enemy_spawns: = get_enemy_spawn_count()
     for amt in enemy_spawns:
+        var is_last: = amt == enemy_spawns - 1
+        var as_mobile: = is_boss_round(BossType.MOBILE) and amt == 0
+        var as_sniper: = is_boss_round(BossType.SNIPER) and is_last
         if spots.size() > 0:
             var spot: = spots.pick_random() as Vector2
-            add_dude(false, spot, is_elite_round() and amt == enemy_spawns - 1)
+            add_dude(false, spot, is_elite_round() and is_last, as_mobile, as_sniper)
             spots.remove_at(spots.find(spot))
         else:
-            add_dude(false, get_start_pos() + Vector2(randf_range(-260, 260), randf_range(-140, 140)), is_elite_round() and amt == enemy_spawns - 1)
+            add_dude(false, get_start_pos() + Vector2(randf_range(-260, 260), randf_range(-140, 140)), is_elite_round() and is_last, as_mobile, as_sniper)
     add_dude(true, get_start_pos())
     await dudes.back().moved
+    reposition_mobile_boss_if_needed()
     reset_round_resources()
     if relocate_mode_active:
         pass
@@ -196,6 +341,12 @@ func next_level():
         show_floating_help("Wind Lane\nLong shots drift right", get_start_pos() + Vector2.RIGHT * 180)
     if fog_turn_active:
         show_floating_help("Fog turn!\nPreview reduced", get_start_pos())
+    if is_boss_round(BossType.MOBILE):
+        show_floating_help("Boss: Shifter\nElite foe repositions each round", get_start_pos())
+    if is_boss_round(BossType.FULL_FOG):
+        show_floating_help("Boss: Blind shot\nOnly you and the ball stay visible while aiming", get_start_pos())
+    if is_boss_round(BossType.SNIPER):
+        show_floating_help("Boss: Sniper\nLose a teammate each round", get_start_pos())
 
 func get_start_pos() -> Vector2:
     return global_position + Vector2.UP * 50
@@ -496,6 +647,7 @@ func get_wind_strength() -> float:
     return wind_strength if wind_lane_active and not anchor_boots_active else 0.0
 
 func get_preview_scale() -> float:
+    # Anchor Boots only affects normal fog_turn preview scaling, not boss full-fog (boss identity).
     if fog_turn_active and not anchor_boots_active:
         return 0.65
     return 1.0

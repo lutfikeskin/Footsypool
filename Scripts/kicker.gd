@@ -125,8 +125,11 @@ func enable_kick():
         return
     line.show()
     kicking = true
+    if current and current.player:
+        main.begin_boss_fog_for_aim(current)
 
 func cancel_all_modes():
+    main.end_boss_fog_for_aim()
     placing = false
     kicking = false
     selecting_weapon_shooter = false
@@ -269,6 +272,7 @@ func _input(event: InputEvent) -> void :
                 main.wait_and_shake(0.15)
             await get_tree().create_timer(0.1).timeout
             ball.kick(d)
+            main.end_boss_fog_for_aim()
         if current:
             await get_tree().create_timer(0.1).timeout
             current.toggle_collision(true)

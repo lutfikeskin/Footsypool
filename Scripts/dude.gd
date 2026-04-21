@@ -17,6 +17,8 @@ var score: = 1
 var touched: = false
 var has_weapon: = false
 var elite_enemy: = false
+var is_mobile_boss: = false
+var is_sniper_enemy: = false
 
 signal moved
 
@@ -63,6 +65,17 @@ func make_elite():
     elite_enemy = true
     scale = Vector2.ONE * 1.08
     catch_ring.self_modulate = Color(0.93, 0.3, 0.3, 1)
+
+func mark_mobile_boss():
+    is_mobile_boss = true
+    catch_ring.self_modulate = Color(0.35, 0.75, 1.0, 1)
+
+func make_sniper():
+    is_sniper_enemy = true
+    sprite.self_modulate = Color(0.45, 0.15, 0.55, 1)
+    for h in hairs: h.self_modulate = Color(0.55, 0.25, 0.65, 1)
+    for h in extra_hairs: h.self_modulate = Color(0.55, 0.25, 0.65, 1)
+    catch_ring.self_modulate = Color(0.85, 0.35, 1.0, 1)
 
 func step():
     await get_tree().create_timer(0.25).timeout
