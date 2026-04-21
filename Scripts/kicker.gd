@@ -101,6 +101,11 @@ func pass_ball(include_enemies: bool):
 
 
     current = main.get_closest(ball.global_position, include_enemies)
+    if not current:
+        main.bad("NO TARGET!", ball.global_position)
+        main.reset_multi()
+        main.failed()
+        return
     current.toggle_collision(false)
     get_tree().create_tween().tween_property(ball, "position", current.global_position, 0.3).set_trans(Tween.TRANS_BOUNCE)
     current.looker.ignore_target = true

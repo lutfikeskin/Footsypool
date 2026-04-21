@@ -70,6 +70,7 @@ enum BossType { NONE, MOBILE, FULL_FOG, SNIPER }
 
 @export var boss_unlock_level: int = 10
 @export var boss_duration_rounds: int = 5
+@export var enemy_spawn_min_ball_dist: float = 115.0
 var current_boss: BossType = BossType.NONE
 var boss_rounds_left: int = 0
 var _boss_fog_active: = false
@@ -148,6 +149,8 @@ func add_dude(player: bool, pos: Vector2, elite: bool = false, as_mobile_boss: b
 
 func get_closest(pos: Vector2, include_enemies: bool) -> Dude:
     var sorted: = dudes.filter( func(d: Dude): return d.player or include_enemies).duplicate()
+    if sorted.is_empty():
+        return null
     sorted.sort_custom( func(a: Dude, b: Dude): return pos.distance_to(a.global_position) < pos.distance_to(b.global_position))
     return sorted.front()
 
@@ -311,11 +314,24 @@ func next_level():
         var as_mobile: = is_boss_round(BossType.MOBILE) and amt == 0
         var as_sniper: = is_boss_round(BossType.SNIPER) and is_last
         if spots.size() > 0:
-            var spot: = spots.pick_random() as Vector2
+            var spot: Vector2
+            var spot_idx: = -1
+            for _pick in 14:
+                var i: = randi_range(0, spots.size() - 1)
+                var cand: Vector2 = spots[i] as Vector2
+                if cand.distance_to(ball.global_position) >= enemy_spawn_min_ball_dist:
+                    spot = cand
+                    spot_idx = i
+                    break
+            if spot_idx < 0:
+                spot = pick_enemy_spawn_with_clearance(get_start_pos())
+                if not spots.is_empty():
+                    spots.remove_at(randi_range(0, spots.size() - 1))
+            else:
+                spots.remove_at(spot_idx)
             add_dude(false, spot, is_elite_round() and is_last, as_mobile, as_sniper)
-            spots.remove_at(spots.find(spot))
         else:
-            add_dude(false, get_start_pos() + Vector2(randf_range(-260, 260), randf_range(-140, 140)), is_elite_round() and is_last, as_mobile, as_sniper)
+            add_dude(false, pick_enemy_spawn_with_clearance(get_start_pos()), is_elite_round() and is_last, as_mobile, as_sniper)
     add_dude(true, get_start_pos())
     await dudes.back().moved
     reposition_mobile_boss_if_needed()
@@ -350,6 +366,23 @@ func next_level():
 
 func get_start_pos() -> Vector2:
     return global_position + Vector2.UP * 50
+
+func pick_enemy_spawn_with_clearance(fallback_center: Vector2) -> Vector2:
+    var ball_pos: Vector2 = ball.global_position
+    for _attempt in 40:
+        var candidate: Vector2 = fallback_center + Vector2(randf_range(-260, 260), randf_range(-140, 140))
+        if not kicker.is_inside(candidate):
+            continue
+        if candidate.distance_to(ball_pos) >= enemy_spawn_min_ball_dist:
+            return candidate
+    for relax in [90.0, 70.0, 50.0]:
+        for _attempt in 28:
+            var c2: Vector2 = fallback_center + Vector2(randf_range(-260, 260), randf_range(-140, 140))
+            if not kicker.is_inside(c2):
+                continue
+            if c2.distance_to(ball_pos) >= relax:
+                return c2
+    return fallback_center
 
 func pop_multi(pos: Vector2):
     multi += ball.bounces

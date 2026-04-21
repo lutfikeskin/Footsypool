@@ -83,9 +83,11 @@ func bounce(dir: Vector2):
             main.burst.global_position = global_position
             main.burst.play()
             main.cam.shake(20, 0.4)
-            main.next_level()
+            var scorer: Dude = kicker.current
+            await main.next_level()
             await get_tree().create_timer(0.3).timeout
-            kicker.current.hop()
+            if is_instance_valid(scorer):
+                scorer.hop()
             return
         if can_continue():
             main.pop_multi(pos)
