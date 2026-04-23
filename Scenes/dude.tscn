@@ -27,6 +27,7 @@
 [ext_resource type="Texture2D" uid="uid://ch75dv84rg7hm" path="res://Sprites/hair8.png" id="25"]
 [ext_resource type="Texture2D" uid="uid://c3pjf2bmsans" path="res://Sprites/hair9.png" id="26"]
 [ext_resource type="Script" uid="uid://b2krsg1pv25ww" path="res://Scripts/catcher.gd" id="27"]
+[ext_resource type="Texture2D" uid="uid://bajw1dy6klc3u" path="res://Sprites/kitty.png" id="28_jq0f4"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_2hl5x"]
 shader = ExtResource("3")
@@ -1048,6 +1049,70 @@ _data = {
 [sub_resource type="CircleShape2D" id="CircleShape2D_ee6w5"]
 radius = 33.01515
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_bo4ge"]
+atlas = ExtResource("28_jq0f4")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dnp5y"]
+atlas = ExtResource("28_jq0f4")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6825t"]
+atlas = ExtResource("28_jq0f4")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ldox0"]
+atlas = ExtResource("28_jq0f4")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4wrtr"]
+atlas = ExtResource("28_jq0f4")
+region = Rect2(128, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rqkhl"]
+atlas = ExtResource("28_jq0f4")
+region = Rect2(160, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_57ymm"]
+atlas = ExtResource("28_jq0f4")
+region = Rect2(192, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yilxj"]
+atlas = ExtResource("28_jq0f4")
+region = Rect2(224, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_dafdd"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bo4ge")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dnp5y")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6825t")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ldox0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4wrtr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rqkhl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_57ymm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yilxj")
+}],
+"loop": true,
+"name": &"default",
+"speed": 20.0
+}]
+
 [node name="Dude" type="Node2D" unique_id=470400149 node_paths=PackedStringArray("body", "anim", "spot", "number", "sprite", "brow", "hairs", "catch_ring", "extra_hairs", "looker")]
 self_modulate = Color(1, 0.49411765, 0.41960785, 1)
 script = ExtResource("1")
@@ -1170,7 +1235,6 @@ position = Vector2(-2.9120953, -44.798508)
 scale = Vector2(3.5487607, 3.5487607)
 
 [node name="Brow" type="ColorRect" parent="Body/Torso/Face Mover/Face" unique_id=1482851865]
-visible = false
 offset_left = -15.083471
 offset_top = -7.7200527
 offset_right = 16.724665
@@ -1331,3 +1395,12 @@ dude = NodePath("..")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=1450487737]
 shape = SubResource("CircleShape2D_ee6w5")
+
+[node name="NewSprite" type="AnimatedSprite2D" parent="." unique_id=1644399816]
+visible = false
+texture_filter = 1
+position = Vector2(-3, -46)
+scale = Vector2(3, 3)
+sprite_frames = SubResource("SpriteFrames_dafdd")
+autoplay = "default"
+frame_progress = 0.22837491
