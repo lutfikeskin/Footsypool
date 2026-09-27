@@ -22,6 +22,7 @@ var selecting_relocate_player: = false
 var placing_relocate_target: = false
 var relocate_player: Dude
 var relocate_preview_warn_timer: = 0.0
+var preview_pierce: = false
 
 func get_dir() -> Vector2:
     return (line.get_global_mouse_position() - ball.global_position).normalized()
@@ -51,6 +52,7 @@ func _process(_delta: float) -> void :
         line.add_point(line.to_local(main.dudes.back().global_position))
 
     if kicking:
+        preview_pierce = main.ghost_shot_ready
         line.add_point(line.to_local(ball.global_position))
         add_bounce(ball.global_position, get_dir())
 
@@ -76,30 +78,30 @@ func _process(_delta: float) -> void :
         relocate_player.catch_ring.show()
         main.show_floating_help("Set new position", mp)
 
+# Preview mirrors Ball.bounce exactly: same raycast, same wind, same pass-through rules.
 func add_bounce(from: Vector2, dir: Vector2):
-    var result = get_hit(from, dir, bounces > 0)
-    var preview_scale: = main.get_preview_scale()
-    var preview_cap: = 3 if main.ghost_shot_active else roundi(5 * preview_scale)
-    var max_preview_len: = (520 if main.ghost_shot_active else 820) * preview_scale
-    if result.has("hit") and bounces < preview_cap:
+    var caps: = main.get_preview_caps()
+    var result = get_hit(from, dir, bounces > 0, bounces + 1, preview_pierce)
+    for p in result.get("passed", []):
+        if p.kind == "pierce":
+            preview_pierce = false
+    if result.has("hit") and bounces < caps.bounces:
         line_len += from.distance_to(result.hit)
         line.add_point(line.to_local(result.hit))
         line.add_point(line.to_local(result.hit))
         bounces += 1
-        if not result.goal and not result.catcher and line_len < max_preview_len:
-            add_bounce(result.hit, reflect(dir, result.normal))
+        if not result.goal and not result.catcher and line_len < caps.length:
+            add_bounce(result.hit, main.apply_wind(reflect(dir, result.normal)))
         if result.catcher:
             catcher = result.catcher
             catcher.catch_ring.show()
-            if catcher.touched and main.level < 5:
+            if catcher.touched and main.level < 5 and not main.safe_pass_available:
                 main.show_floating_help("Double touches\nare punished", catcher.global_position)
 
 func reflect(dir: Vector2, normal: Vector2) -> Vector2:
     return dir - 2 * dir.dot(normal) * normal
 
 func pass_ball(include_enemies: bool):
-
-
     current = main.get_closest(ball.global_position, include_enemies)
     if not current:
         main.bad("NO TARGET!", ball.global_position)
@@ -131,7 +133,7 @@ func enable_kick():
     line.show()
     kicking = true
     if current and current.player:
-        main.begin_boss_fog_for_aim(current)
+        main.on_aim_start(current)
 
 func cancel_all_modes():
     main.end_boss_fog_for_aim()
@@ -151,8 +153,6 @@ func cancel_all_modes():
     reset_swap_preview()
 
 func start_weapon_phase():
-    if not main.weapon_upgrade_active:
-        return
     if main.weapon_shots_left <= 0:
         return
     if main.get_enemies().is_empty():
@@ -160,127 +160,131 @@ func start_weapon_phase():
     cancel_all_modes()
     selecting_weapon_shooter = true
     line.hide()
-    main.show_help("Choose a (shooter)", "Then (click) an enemy to fire")
+    main.show_help("Choose a (shooter)", "(Click) an enemy to fire, (right click) to skip")
 
 func start_relocate_phase():
-    if not main.single_relocate_active:
-        return
-    if main.single_relocate_charges <= 0:
+    if main.relocate_charges <= 0:
         return
     cancel_all_modes()
     selecting_relocate_player = true
     line.hide()
-    main.show_help("Relocate ready", "Pick a (teammate)")
+    main.show_help("Playmaker ready", "Pick a (teammate) to move, (right click) to skip")
 
 func is_inside(pos: Vector2) -> bool:
     return Geometry2D.is_point_in_polygon(pos, field.polygon)
 
 func _input(event: InputEvent) -> void :
-    if event is InputEventMouseButton and event.is_pressed():
-        if main.is_interaction_blocked():
-            return
-        if not main.started:
-            return
+    if not (event is InputEventMouseButton and event.is_pressed()):
+        return
+    if main.is_interaction_blocked():
+        return
+    if not main.started:
+        return
 
-        var mp: = get_global_mouse_position()
+    var mp: = get_global_mouse_position()
 
-        if main.menu.open or main.buttons.any( func(b: Button): return b.is_hovered()):
-            if main.menu.open and is_inside(mp):
-                main.menu.toggle()
+    if main.menu.open or main.buttons.any( func(b: Button): return b.is_hovered()):
+        if main.menu.open and is_inside(mp):
+            main.menu.toggle()
+        return
+
+    if event.button_index == MOUSE_BUTTON_RIGHT:
+        if selecting_relocate_player or placing_relocate_target:
+            main.skip_relocate()
+        elif selecting_weapon_shooter or selecting_weapon_target:
+            main.skip_weapon()
+        return
+    if event.button_index != MOUSE_BUTTON_LEFT:
+        return
+
+    if placing_relocate_target:
+        if not is_inside(mp):
             return
-
-        if placing_relocate_target:
-            if not is_inside(mp):
-                return
-            if get_closest_player_distance(mp, relocate_player) < 75:
-                main.bad("TOO CLOSE!", mp)
-                relocate_preview_warn_timer = 0.22
-                return
-            if not main.consume_single_relocate_charge():
-                cancel_all_modes()
-                main.finish_single_relocate()
-                return
-            await relocate_selected(mp)
+        if get_closest_player_distance(mp, relocate_player) < 75 or not main.is_point_free(mp, 45.0):
+            main.bad("TOO CLOSE!" if main.is_point_free(mp, 45.0) else "BLOCKED!", mp)
+            relocate_preview_warn_timer = 0.22
+            return
+        if not main.consume_relocate_charge():
             cancel_all_modes()
-            main.finish_single_relocate()
             main.resume_after_relocate()
             return
-        if selecting_relocate_player:
-            var p := get_player_at_pos(mp)
-            if not p:
-                return
-            relocate_player = p
-            selecting_relocate_player = false
-            placing_relocate_target = true
-            main.show_help("Relocate ready", "Click a new (field) position")
+        await relocate_selected(mp)
+        cancel_all_modes()
+        main.resume_after_relocate()
+        return
+    if selecting_relocate_player:
+        var p := get_player_at_pos(mp)
+        if not p:
             return
-        if placing:
-            main.has_moved = true
-            if not is_inside(mp):
-                return
-            SoundEffects.singleton.add(3, mp)
-            SoundEffects.singleton.add(10, mp)
-            main.hide_help()
-            placing = false
-            main.dudes.back().move_to(mp)
-            get_tree().create_tween().tween_property(ball, "position", main.global_position, 0.3).set_trans(Tween.TRANS_BOUNCE)
-            await main.dudes.back().moved
-            pass_ball(true)
-            await get_tree().create_timer(0.5).timeout
-            enable_kick()
+        relocate_player = p
+        selecting_relocate_player = false
+        placing_relocate_target = true
+        main.show_help("Playmaker ready", "Click a new (field) position")
+        return
+    if placing:
+        main.has_moved = true
+        if not is_inside(mp):
             return
-        if selecting_weapon_shooter:
-            var shooter := get_shooter_at_pos(mp)
-            if not shooter:
-                return
-            weapon_shooter = shooter
-            selecting_weapon_shooter = false
-            selecting_weapon_target = true
-            main.hide_help()
+        if not main.is_point_free(mp, 45.0):
+            main.bad("BLOCKED!", mp)
             return
-        if selecting_weapon_target:
-            var enemy := get_enemy_at_pos(mp)
-            if not enemy:
-                return
-            if not main.consume_weapon_shot():
-                cancel_all_modes()
-                placing = true
-                line.show()
-                return
-            selecting_weapon_target = false
-            fire_weapon(weapon_shooter, enemy)
-            await get_tree().create_timer(0.1).timeout
-            if main.weapon_shots_left > 0 and main.get_enemies().size() > 0:
-                start_weapon_phase()
-            else:
-                placing = true
-                line.show()
+        SoundEffects.singleton.add(3, mp)
+        SoundEffects.singleton.add(10, mp)
+        main.hide_help()
+        placing = false
+        main.dudes.back().move_to(mp)
+        get_tree().create_tween().tween_property(ball, "position", main.global_position, 0.3).set_trans(Tween.TRANS_BOUNCE)
+        await main.dudes.back().moved
+        pass_ball(true)
+        await get_tree().create_timer(0.5).timeout
+        enable_kick()
+        return
+    if selecting_weapon_shooter:
+        var shooter := get_shooter_at_pos(mp)
+        if not shooter:
             return
-        if kicking:
-            main.hide_help()
-            kicking = false
-            line.hide()
-            main.lower_hands()
-            var d: = get_dir()
-            var shot_len: = ball.global_position.distance_to(mp)
-            if main.is_aim_penalty_active() and shot_len > 380:
-                var miss_angle: = randf_range(-0.16, 0.16)
-                d = d.rotated(miss_angle)
-            var wind_push: = main.get_wind_strength()
-            if wind_push > 0.0:
-                d = (d + Vector2.RIGHT * wind_push).normalized()
-            if main.ghost_shot_active:
-                ball.pierce_first_enemy = true
-            if current:
-                current.looker.ignore_target = false
-                current.kick(d.x < 0)
-                main.wait_and_shake(0.15)
-            await get_tree().create_timer(0.1).timeout
-            ball.kick(d)
-            main.end_boss_fog_for_aim()
+        weapon_shooter = shooter
+        selecting_weapon_shooter = false
+        selecting_weapon_target = true
+        main.hide_help()
+        return
+    if selecting_weapon_target:
+        var enemy := get_enemy_at_pos(mp)
+        if not enemy:
+            return
+        if not main.consume_weapon_shot():
+            cancel_all_modes()
+            placing = true
+            line.show()
+            return
+        selecting_weapon_target = false
+        fire_weapon(weapon_shooter, enemy)
+        await get_tree().create_timer(0.1).timeout
+        main.refresh_hud()
+        if main.weapon_shots_left > 0 and main.get_enemies().size() > 0:
+            start_weapon_phase()
+        else:
+            placing = true
+            line.show()
+        return
+    if kicking:
+        main.hide_help()
+        kicking = false
+        line.hide()
+        main.lower_hands()
+        var d: = get_dir()
+        ball.pierce_armed = main.ghost_shot_ready
+        main.on_player_kick()
         if current:
-            await get_tree().create_timer(0.1).timeout
-            current.toggle_collision(true)
+            current.looker.ignore_target = false
+            current.kick(d.x < 0)
+            main.wait_and_shake(0.15)
+        await get_tree().create_timer(0.1).timeout
+        ball.kick(d)
+        main.end_boss_fog_for_aim()
+    if current:
+        await get_tree().create_timer(0.1).timeout
+        current.toggle_collision(true)
 
 func get_shooter_at_pos(pos: Vector2) -> Dude:
     var candidates: Array[Dude] = main.get_weapon_candidates()
@@ -302,16 +306,21 @@ func fire_weapon(shooter: Dude, enemy: Dude):
     Effects.singleton.add(2, shooter.global_position)
     SoundEffects.singleton.add(2, shooter.global_position, 2)
     await get_tree().create_timer(0.08).timeout
+    if not is_instance_valid(enemy):
+        return
     var hit_chance := main.get_weapon_hit_chance()
     if enemy.elite_enemy:
-        hit_chance -= 0.08
+        hit_chance -= 0.1
     if randf() <= hit_chance:
         main.kill_enemy(enemy, enemy.global_position)
     else:
         main.bad("MISSED SHOT!", enemy.global_position)
 
+# The freshly spawned bench player (dudes.back()) is placed by the normal flow, not by Playmaker.
 func get_player_at_pos(pos: Vector2) -> Dude:
     for d in main.dudes:
+        if d == main.dudes.back():
+            continue
         if d.player and d.global_position.distance_to(pos) < 55:
             return d
     return null
@@ -337,7 +346,7 @@ func update_swap_preview(mp: Vector2):
         relocate_preview_warn_timer = maxf(0.0, relocate_preview_warn_timer - get_process_delta_time())
         swap_preview_ring.self_modulate = Color(1, 0.28, 0.28, 0.95)
         return
-    if not is_inside(mp):
+    if not is_inside(mp) or not main.is_point_free(mp, 45.0):
         swap_preview_ring.self_modulate = Color(1, 0.35, 0.35, 0.85)
         return
     if get_closest_player_distance(mp, relocate_player) < 75:
@@ -362,16 +371,36 @@ func get_closest_player_distance(pos: Vector2, ignore: Dude = null) -> float:
         closest = minf(closest, pos.distance_to(d.global_position))
     return closest
 
-func get_hit(from: Vector2, dir: Vector2, can_catch: bool) -> Dictionary:
+# Raycast one ball segment. `segment` is 1-based (matches Ball.bounces).
+# Enemies the ball passes through (Ghost Shot pierce, Bank Shot Hunter kill) are
+# listed in result.passed and excluded from the ray so the segment continues past them.
+func get_hit(from: Vector2, dir: Vector2, can_catch: bool, segment: int = 1, pierce_armed: bool = false) -> Dictionary:
     var space_state = get_world_2d().direct_space_state
-    var query = PhysicsRayQueryParameters2D.create(from, from + dir * 1500)
-    var result: = space_state.intersect_ray(query)
-    if result.has("position"):
+    var exclude: Array[RID] = []
+    var passed: Array = []
+    for _i in 4:
+        var query = PhysicsRayQueryParameters2D.create(from, from + dir * 1500)
+        query.exclude = exclude
+        var result: = space_state.intersect_ray(query)
+        if not result.has("position"):
+            return result
         result.set("hit", result.position.move_toward(from, 10))
         result.set("goal", result.has("collider") and result.collider.name == "Goal")
         result.set("catcher", null)
-        if result.collider is Catcher and (can_catch or not result.collider.dude.player):
-            if result.collider.dude.player and main.consume_safe_pass():
-                return result
-            result.set("catcher", result.collider.dude)
-    return result
+        result.set("passed", passed)
+        if result.collider is Catcher:
+            var dude: Dude = result.collider.dude
+            if not dude.player:
+                if pierce_armed:
+                    pierce_armed = false
+                    passed.push_back({"dude": dude, "kind": "pierce"})
+                    exclude.push_back(result.rid)
+                    continue
+                if main.has_upgrade("bank_kill") and segment > 3:
+                    passed.push_back({"dude": dude, "kind": "kill"})
+                    exclude.push_back(result.rid)
+                    continue
+            if can_catch or not dude.player:
+                result.set("catcher", dude)
+        return result
+    return {}

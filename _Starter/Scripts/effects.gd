@@ -38,7 +38,9 @@ func add(index: int, pos: Vector2, pool_size: int = -1) -> Node:
     if pool_size >= 0:
         pools[index].push_back(effect)
         if len(pools[index]) > pool_size:
-            (pools[index].pop_front() as Node).queue_free()
+            var old: = pools[index].pop_front() as Node
+            # The evicted effect may still be waiting on its deferred add_child; free it after that.
+            old.call_deferred("queue_free")
 
     call_deferred("add_child", effect)
 

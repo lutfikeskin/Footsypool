@@ -20,6 +20,10 @@ config/icon="uid://ccmyqdj680ga2"
 
 buses/default_bus_layout="uid://q4wy0fql7nqf"
 
+[autoload]
+
+MCPRuntimeServer="*res://addons/godot_mcp_toolkit/runtime/mcp_runtime_server.gd"
+
 [display]
 
 window/size/viewport_width=1920
@@ -37,7 +41,7 @@ text_editor/behavior/indent/type=1
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/info/plugin.cfg", "res://addons/palette/plugin.cfg")
+enabled=PackedStringArray("res://addons/godot_mcp_toolkit/plugin.cfg", "res://addons/info/plugin.cfg", "res://addons/palette/plugin.cfg")
 
 [file_customization]
 

@@ -17,8 +17,9 @@ var score: = 1
 var touched: = false
 var has_weapon: = false
 var elite_enemy: = false
-var is_mobile_boss: = false
-var is_sniper_enemy: = false
+var is_boss: = false
+var boss_kind: = ""
+var moving: = false
 
 signal moved
 
@@ -33,12 +34,14 @@ func get_anim_speed() -> float:
 func move_to(pos: Vector2):
     var speed_mod: = 1.0 if player else 1.5
     var duration: = pos.distance_to(global_position) * 0.003 / speed_mod
+    moving = true
     get_tree().create_tween().tween_property(self, "global_position", pos, duration).set_trans(Tween.TRANS_QUAD)
     anim.play("run")
     anim.speed_scale = 3.5 * get_anim_speed()
     await get_tree().create_timer(duration).timeout
     anim.speed_scale = get_anim_speed()
     anim.play("idle")
+    moving = false
     moved.emit()
 
 func toggle_collision(state: bool):
@@ -61,21 +64,24 @@ func set_weapon_enabled(state: bool):
     has_weapon = state
     catch_ring.self_modulate = Color(1, 0.94, 0.34, 1) if state else Color.WHITE
 
+# Magnet Boots: scales the catch body so the ball is caught from farther away.
+func set_catch_scale(factor: float):
+    body.scale = Vector2.ONE * factor
+
 func make_elite():
     elite_enemy = true
     scale = Vector2.ONE * 1.08
     catch_ring.self_modulate = Color(0.93, 0.3, 0.3, 1)
 
-func mark_mobile_boss():
-    is_mobile_boss = true
-    catch_ring.self_modulate = Color(0.35, 0.75, 1.0, 1)
-
-func make_sniper():
-    is_sniper_enemy = true
-    sprite.self_modulate = Color(0.45, 0.15, 0.55, 1)
-    for h in hairs: h.self_modulate = Color(0.55, 0.25, 0.65, 1)
-    for h in extra_hairs: h.self_modulate = Color(0.55, 0.25, 0.65, 1)
-    catch_ring.self_modulate = Color(0.85, 0.35, 1.0, 1)
+func mark_boss(kind: String):
+    is_boss = true
+    boss_kind = kind
+    scale = Vector2.ONE * 1.3
+    var c: Color = RunData.BOSS_INFO[kind].color
+    catch_ring.self_modulate = c
+    sprite.self_modulate = c.darkened(0.35)
+    for h in hairs: h.self_modulate = c
+    for h in extra_hairs: h.self_modulate = c
 
 func step():
     await get_tree().create_timer(0.25).timeout

@@ -254,6 +254,8 @@ position = Vector2(966, 570.00006)
 scale = Vector2(1.7915213, 1.7915213)
 texture = ExtResource("34")
 
+[node name="Obstacles" type="Node2D" parent="." unique_id=2077000101]
+
 [node name="Kick Line" type="Line2D" parent="." unique_id=2123650243]
 texture_repeat = 2
 points = PackedVector2Array(1257, 644, 580, 812, 583, 822, 1191, 779, 1199, 811, 1038, 900)
@@ -291,7 +293,7 @@ self_modulate = Color(0.45, 1, 0.55, 0.9)
 scale = Vector2(0.72, 0.72)
 texture = ExtResource("36")
 
-[node name="Main" type="Node2D" parent="." unique_id=1427521217 node_paths=PackedStringArray("kicker", "ball", "cam", "multi_label", "score_label", "goal_score_label", "round_label", "buttons", "menu", "appearers", "floating_help", "burst", "hide_on_start", "start_stuff", "music", "upgrade_wrap", "upgrade_buttons", "upgrade_title")]
+[node name="Main" type="Node2D" parent="." unique_id=1427521217 node_paths=PackedStringArray("kicker", "ball", "cam", "multi_label", "score_label", "goal_score_label", "round_label", "buttons", "menu", "appearers", "floating_help", "burst", "hide_on_start", "start_stuff", "music", "upgrade_wrap", "upgrade_buttons", "upgrade_title", "status_label", "obstacle_root", "field_sprite", "goal_posts")]
 position = Vector2(966, 935)
 script = ExtResource("39")
 kicker = NodePath("../Kicker")
@@ -307,12 +309,16 @@ menu = NodePath("../CanvasLayer/Control/Settings")
 appearers = [NodePath("../CanvasLayer/Control/Place Help"), NodePath("../CanvasLayer/Control/Place Help Sub"), NodePath("../CanvasLayer/Control/Game Over"), NodePath("../CanvasLayer/Control/Again Wrap"), NodePath("../CanvasLayer/Control/Quit Wrap")]
 floating_help = NodePath("../Floating Help")
 burst = NodePath("../Burst")
-hide_on_start = [NodePath("../CanvasLayer/Control/Score"), NodePath("../CanvasLayer/Control/Multi"), NodePath("../CanvasLayer/Control/Round"), NodePath("../Goal Score Title"), NodePath("../Goal Score")]
+hide_on_start = [NodePath("../CanvasLayer/Control/Score"), NodePath("../CanvasLayer/Control/Multi"), NodePath("../CanvasLayer/Control/Round"), NodePath("../CanvasLayer/Control/Status"), NodePath("../Goal Score Title"), NodePath("../Goal Score")]
 start_stuff = [NodePath("../Logo"), NodePath("../CanvasLayer/Control/Play Wrap")]
 music = NodePath("../Music")
 upgrade_wrap = NodePath("../CanvasLayer/Control/Upgrade Wrap")
 upgrade_buttons = [NodePath("../CanvasLayer/Control/Upgrade Wrap/VBoxContainer/Upgrade 1"), NodePath("../CanvasLayer/Control/Upgrade Wrap/VBoxContainer/Upgrade 2"), NodePath("../CanvasLayer/Control/Upgrade Wrap/VBoxContainer/Upgrade 3")]
 upgrade_title = NodePath("../CanvasLayer/Control/Upgrade Wrap/VBoxContainer/Title")
+status_label = NodePath("../CanvasLayer/Control/Status")
+obstacle_root = NodePath("../Obstacles")
+field_sprite = NodePath("../Field")
+goal_posts = [NodePath("../Edges/StaticBody2D"), NodePath("../Edges/StaticBody2D2")]
 
 [node name="Ball" type="Node2D" parent="." unique_id=5689709 node_paths=PackedStringArray("kicker", "main", "sprite")]
 position = Vector2(966, 935)
@@ -425,6 +431,19 @@ theme_override_constants/outline_size = 24
 theme_override_fonts/normal_font = ExtResource("44")
 theme_override_font_sizes/normal_font_size = 40
 text = " Round 1"
+
+[node name="Status" type="RichTextLabel" parent="CanvasLayer/Control" unique_id=2077000102]
+layout_mode = 0
+offset_left = 22.0
+offset_top = 132.0
+offset_right = 820.0
+offset_bottom = 330.0
+theme_override_constants/outline_size = 14
+theme_override_fonts/normal_font = ExtResource("44")
+theme_override_font_sizes/normal_font_size = 24
+bbcode_enabled = true
+text = "LIVES 1"
+scroll_active = false
 
 [node name="Settings" type="ColorRect" parent="CanvasLayer/Control" unique_id=1364314142 node_paths=PackedStringArray("toggle_button", "music", "sounds")]
 layout_mode = 1
@@ -588,10 +607,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -320.0
-offset_top = -190.0
-offset_right = 320.0
-offset_bottom = 190.0
+offset_left = -360.0
+offset_top = -230.0
+offset_right = 360.0
+offset_bottom = 230.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -628,27 +647,27 @@ fit_content = true
 horizontal_alignment = 1
 
 [node name="Upgrade 1" type="Button" parent="CanvasLayer/Control/Upgrade Wrap/VBoxContainer" unique_id=2077000005]
-custom_minimum_size = Vector2(0, 72)
+custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 theme = ExtResource("48")
 theme_override_fonts/font = ExtResource("44")
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 24
 text = "Upgrade 1"
 
 [node name="Upgrade 2" type="Button" parent="CanvasLayer/Control/Upgrade Wrap/VBoxContainer" unique_id=2077000006]
-custom_minimum_size = Vector2(0, 72)
+custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 theme = ExtResource("48")
 theme_override_fonts/font = ExtResource("44")
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 24
 text = "Upgrade 2"
 
 [node name="Upgrade 3" type="Button" parent="CanvasLayer/Control/Upgrade Wrap/VBoxContainer" unique_id=2077000007]
-custom_minimum_size = Vector2(0, 72)
+custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 theme = ExtResource("48")
 theme_override_fonts/font = ExtResource("44")
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 24
 text = "Upgrade 3"
 
 [node name="Game Over" type="RichTextLabel" parent="CanvasLayer/Control" unique_id=327226821]
