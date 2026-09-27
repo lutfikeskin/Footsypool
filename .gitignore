@@ -1,0 +1,18 @@
+# Godot 4 editor cache — fully derived, regenerated on first open/import.
+# Committing it caused hundreds of KB of binary churn every time anyone
+# (or a headless import pass) opened the project on a different machine
+# or engine patch version. Nothing in here is authored content.
+.godot/
+
+# IDE / agent tool state — machine-local, not project content.
+.idea/
+.devin/
+
+# MCP client config for the Godot MCP Toolkit addon (addons/godot_mcp_toolkit).
+# It's per-machine (this one has a Windows "cmd /c npx ..." invocation that
+# won't run as-is on macOS/Linux). Regenerate it locally via
+# Project -> Tools -> MCP Toolkit -> Write .mcp.json.
+.mcp.json
+
+# Godot export presets can embed local export paths / keystore references.
+export_presets.cfg
